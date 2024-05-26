@@ -8,6 +8,7 @@ import { CategoryProvider } from './utils/categoryContext'
 import PrivateRoute from './utils/PrivateRoute'
 import Product from './pages/Product'
 import SupplierDashboard from './pages/SupplierDashboard'
+import { ProductProvider } from './utils/productContext'
 
 function App() {
   return (
@@ -43,10 +44,12 @@ function App() {
             }
           />
           <Route
-            path='/product'
+            path='/s-product'
             element={
               <PrivateRoute>
-                <Product />
+                <ProductProvider>
+                  <Product />
+                </ProductProvider>
               </PrivateRoute>
             }
           />

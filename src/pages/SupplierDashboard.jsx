@@ -18,7 +18,7 @@ export default function SupplierDashboard() {
                 </a>
               </li>
               <li className='nav-item'>
-                <a className='nav-link text-light' href='/product'>
+                <a className='nav-link text-light' href='/s-product'>
                   <span data-feather='shopping-cart'></span>
                   Product
                 </a>

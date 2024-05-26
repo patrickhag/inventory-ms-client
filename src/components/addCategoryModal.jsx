@@ -6,9 +6,16 @@ import { useCategory } from '../hooks/useCategory'
 const AddCategoryModal = ({ show, handleClose }) => {
   const [categoryName, setCategoryName] = useState('')
   const [categoryDescription, setCategoryDescription] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+
   const { setCreatedNewCategory } = useCategory()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!categoryName || !categoryDescription) {
+      setErrorMessage('All fields must be filled.')
+      return
+    }
     try {
       const response = await fetch('http://localhost:8081/categories', {
         method: 'POST',
@@ -42,6 +49,11 @@ const AddCategoryModal = ({ show, handleClose }) => {
             <h5 className='modal-title'>Add Category</h5>
           </div>
           <div className='modal-body'>
+            {errorMessage && (
+              <div className='alert alert-danger' role='alert'>
+                {errorMessage}
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div className='form-group'>
                 <label htmlFor='categoryName'>Name</label>

@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useCategory } from '../hooks/useCategory'
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import axios from 'axios'
+import { useProduct } from '../hooks/useProduct'
 
 const getCategories = async () => {
   try {
@@ -30,7 +31,12 @@ const AddProductModal = ({ show, handleClose }) => {
   const [availableQuantity, setAvailableQuantity] = useState('')
   const [productImage, setProductImage] = useState(null)
   const [productDescription, setProductDescription] = useState('')
-  const supplierId = localStorage.getItem('supplierId')
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const { setCreatedNewProduct } = useProduct()
+
+  const supplierId =
+    /* localStorage.getItem('supplierId') */ '550e8400-e29b-41d4-a716-446655440000'
 
   useEffect(() => {
     getCategories().then(({ categories }) => setCategories(categories))
@@ -39,9 +45,21 @@ const AddProductModal = ({ show, handleClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    if (
+      !productName ||
+      !selectedCategory ||
+      !unitPrice ||
+      !availableQuantity ||
+      !productImage ||
+      !productDescription
+    ) {
+      setErrorMessage('All fields must be filled.')
+      return
+    }
+
     const formData = new FormData()
     formData.append('name', productName)
-    formData.append('categoryId', '0db86a1d-a51d-4d41-a012-0d8cad3cecd6')
+    formData.append('categoryId', selectedCategory)
     formData.append('supplierId', supplierId)
     formData.append('productImage', productImage)
     formData.append('unitPrice', Number(unitPrice))
@@ -49,12 +67,15 @@ const AddProductModal = ({ show, handleClose }) => {
     formData.append('description', productDescription)
 
     try {
-      const response = await fetch('http://localhost:8081/products/add', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      })
-      console.log(response)
+      const response = await axios.post(
+        'http://localhost:8081/products/add',
+        formData,
+        {
+          withCredentials: true,
+        }
+      )
+      setCreatedNewProduct((prevStateProduct) => !prevStateProduct)
+      handleClose()
     } catch (error) {
       console.error('Error:', error)
     }
@@ -71,6 +92,11 @@ const AddProductModal = ({ show, handleClose }) => {
             <h5 className='modal-title'>Add Product</h5>
           </div>
           <div className='modal-body'>
+            {errorMessage && (
+              <div className='alert alert-danger' role='alert'>
+                {errorMessage}
+              </div>
+            )}
             <form onSubmit={handleSubmit}>
               <div className='form-group'>
                 <label htmlFor='productName'>Name</label>
@@ -91,6 +117,9 @@ const AddProductModal = ({ show, handleClose }) => {
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
+                  <option value='' disabled>
+                    Choose
+                  </option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}

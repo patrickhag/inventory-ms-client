@@ -5,9 +5,14 @@ export default function Register() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   async function registerUser(e) {
     e.preventDefault()
+    if (!fullName || !email || !password) {
+      setErrorMessage('All fields must be filled.')
+      return
+    }
     try {
       const response = await fetch('http://localhost:8081/users/register', {
         method: 'POST',
@@ -40,6 +45,11 @@ export default function Register() {
         style={{ borderRadius: '10px', border: '1px solid #7c3aed' }}
       >
         <div className='card-body'>
+          {errorMessage && (
+            <div className='alert alert-danger' role='alert'>
+              {errorMessage}
+            </div>
+          )}
           <h5 className='card-title text-center mb-4'>
             Register and get to login
           </h5>

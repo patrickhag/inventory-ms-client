@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useEffect } from 'react'
 import AddProductModal from '../components/addProductModal'
-// import { useCategory } from '../hooks/useCategory'
+import { useProduct } from '../hooks/useProduct'
 
 const getProducts = async () => {
   try {
@@ -22,7 +22,7 @@ const getProducts = async () => {
 
 export default function Product() {
   const [products, setProducts] = useState([])
-  //   const { createdNewCategory, setCreatedNewCategory } = useCategory()
+  const { createdNewProduct, setCreatedNewProduct } = useProduct()
   //   const [categoryId, setCategoryId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState(null)
@@ -43,35 +43,30 @@ export default function Product() {
     setModalType(null)
   }
 
-  useEffect(
-    () => {
-      getProducts().then(({ data }) => setProducts(data))
-    },
-    [
-      /* createdNewCategory */
-    ]
-  )
+  const deleteCategory = async (id) => {
+    try {
+      const confirmToDelete = confirm(
+        'Are you sure you want to delete this product?'
+      )
+      if (confirmToDelete) {
+        await fetch(`http://localhost:8081/products/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        })
+        setCreatedNewProduct((prevStateProduct) => !prevStateProduct)
+      }
+    } catch (error) {
+      console.error('Error during delete product:', error)
+      alert('Error during delete product')
+    }
+  }
 
-  //   const deleteCategory = async (id) => {
-  //     try {
-  //       const confirmToDelete = confirm(
-  //         'Are you sure you want to delete this category?'
-  //       )
-  //       if (confirmToDelete) {
-  //         await fetch(`http://localhost:8081/categories/${id}`, {
-  //           method: 'DELETE',
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           credentials: 'include',
-  //         })
-  //         // setCreatedNewCategory((prevStateCategory) => !prevStateCategory)
-  //       }
-  //     } catch (error) {
-  //       console.error('Error during delete category:', error)
-  //       alert('Error during delete category')
-  //     }
-  //   }
+  useEffect(() => {
+    getProducts().then(({ data }) => setProducts(data))
+  }, [createdNewProduct])
 
   return (
     <>
@@ -134,15 +129,19 @@ export default function Product() {
                     <tr>
                       <th>ID</th>
                       <th>Name</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {products.length > 0 ? (
-                      products.map((category, key) => (
+                      products.map((product, key) => (
                         <tr key={key}>
                           <td>{key + 1}</td>
-                          <td>{category.name}</td>
+                          <td>{product.name}</td>
+                          <td>{product.availableQuantinty}</td>
+                          <td>{product.unitPrice}</td>
                           <td>
                             <button
                               className='btn btn-primary btn-sm me-2'
@@ -154,7 +153,7 @@ export default function Product() {
                             </button>
                             <button
                               className='btn btn-danger btn-sm'
-                              //   onClick={() => deleteCategory(category.id)}
+                              onClick={() => deleteCategory(product.id)}
                             >
                               <i className='bi bi-trash'></i> Delete
                             </button>

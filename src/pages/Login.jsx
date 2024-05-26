@@ -27,9 +27,15 @@ const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigateTo = useNavigate()
+  const [errorMessage, setErrorMessage] = useState('')
+  setErrorMessage('All fields must be filled.')
 
   async function loginUser(e) {
     e.preventDefault()
+    if (!email || !password) {
+      setErrorMessage('All fields must be filled.')
+      return
+    }
     try {
       const response = await fetch('http://localhost:8081/users/login', {
         method: 'POST',
@@ -70,6 +76,11 @@ const Login = () => {
         style={{ borderRadius: '10px', border: '1px solid #7c3aed' }}
       >
         <div className='card-body'>
+          {errorMessage && (
+            <div className='alert alert-danger' role='alert'>
+              {errorMessage}
+            </div>
+          )}
           <h5 className='card-title text-center mb-4'>
             Inventory management system
           </h5>
